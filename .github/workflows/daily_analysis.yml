@@ -55,7 +55,25 @@ jobs:
       - name: 创建必要目录
         run: |
           mkdir -p data logs reports
-      
+
+       # 添加debug  我加的啊 
+      - name: Debug DeepSeek API Connection
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          echo "正在测试 DeepSeek API 连通性..."
+          # 使用最原始的curl命令测试，排除项目代码干扰
+          response=$(curl -s -o response.txt -w "%{http_code}" \
+            "https://api.deepseek.com/v1/chat/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $DEEPSEEK_API_KEY" \
+            -d '{"model": "deepseek-chat", "messages": [{"role": "user", "content": "Hi"}], "max_tokens": 5}')
+
+          echo "HTTP 状态码: $response"
+          echo "响应体:"
+          cat response.txt || echo "无响应体"
+
+          
       - name: 执行股票分析
         env:
           # ==========================================
